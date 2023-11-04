@@ -42,7 +42,6 @@ class Article < ApplicationRecord
   enum state: { draft: 0, published: 1, publish_wait: 2 }
   scope :past_published, -> { where('published_at <= ?', Time.current) }
 
-
   validates :slug, slug_format: true, uniqueness: true, length: { maximum: 255 }, allow_blank: true
   validates :title, presence: true, uniqueness: true, length: { maximum: 255 }
   validates :description, length: { maximum: 1000 }, allow_blank: true
