@@ -39,7 +39,9 @@ class Article < ApplicationRecord
 
   has_one_attached :eye_catch
 
-  enum state: { draft: 0, published: 1 }
+  enum state: { draft: 0, published: 1, publish_wait: 2 }
+  scope :past_published, -> { where('published_at <= ?', Time.current) }
+
 
   validates :slug, slug_format: true, uniqueness: true, length: { maximum: 255 }, allow_blank: true
   validates :title, presence: true, uniqueness: true, length: { maximum: 255 }
@@ -70,7 +72,7 @@ class Article < ApplicationRecord
     article_blocks.each do |article_block|
       result << if article_block.sentence?
                   sentence = article_block.blockable
-                  sentence.body.to_s
+                  sentence.body ||= ''
                 elsif article_block.medium?
                   medium = ActiveDecorator::Decorator.instance.decorate(article_block.blockable)
                   controller.render_to_string("shared/_media_#{medium.media_type}", locals: { medium: medium }, layout: false)
@@ -89,5 +91,27 @@ class Article < ApplicationRecord
 
   def prev_article
     @prev_article ||= Article.viewable.order(published_at: :desc).find_by('published_at < ?', published_at)
+  end
+
+  def publishable?
+    Time.current >= published_at
+  end
+
+  def message_on_published
+    if published?
+      '記事を公開しました'
+    elsif publish_wait?
+      '記事を公開待ちにしました'
+    end
+  end
+
+  def adjust_state
+    return if draft?
+
+    self.state = if publishable?
+                   :published
+                 else
+                   :publish_wait
+                 end
   end
 end
