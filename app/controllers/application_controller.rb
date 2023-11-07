@@ -56,7 +56,7 @@ class ApplicationController < ActionController::Base
     }
   end
 
-  rescue_from Pundit::NotAuthorizedError do |exception|
-    render file: "#{Rails.root}/public/403.html", status: :forbidden, layout: false, content_type: 'text/html'
+  rescue_from Pundit::NotAuthorizedError do |_exception|
+    render file: Rails.root.join('public', '403.html'), status: :forbidden, layout: false, content_type: 'text/html'
   end
 end
