@@ -3,6 +3,7 @@ ruby '3.1.4'
 
 gem 'rails', '~> 7.0.3', '>= 7.0.3.1'
 
+gem 'whenever', require: false
 # Assets
 gem 'bootstrap-sass'
 gem 'font-awesome-rails'
